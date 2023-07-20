@@ -26,9 +26,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AuthenticationServiceInterface::class, AuthenticationService::class);
         $this->app->bind(ProductServiceInterface::class, ProductService::class);
         $this->app->bind(CommentRepositoryInterface::class, CommentRepository::class);
-        $this->app->when(FileBuilderDirector::class)
-          ->needs(FileBuilderInterface::class)
-          ->give(FileBuilderLinuxService::class);
+        // $this->app->when(FileBuilderDirector::class)
+        //   ->needs(FileBuilderInterface::class)
+        //   ->give(FileBuilderLinuxService::class);
+        $this->app->bind(FileBuilderInterface::class, FileBuilderLinuxService::class);
+
     }
 
     /**
