@@ -23,15 +23,15 @@ use App\Http\Controllers\Api\V1\RegisterController;
 
 Route::group([
 
-    'middleware' => 'api',
+    'middleware' => ['throttle:throttler', 'api'],
     'prefix' => 'auth',
 
 ], function ($router) {
-
     Route::post('login', [AuthController::class, 'login'])->name('login');
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
-    Route::post('me', [AuthController::class, 'me']);
-    Route::post('register', [RegisterController::class, 'register'])->name('register');
+    Route::post('me', [AuthController::class, 'me'])->name('me');
+    Route::post('register', [RegisterController::class, 'register'])->name('register')->middleware('guest:api');
     Route::post('product/{product:name}/{user?}', [ProductController::class, 'comment'])->name('comment')->middleware('auth:api');
+    Route::post('products', [ProductController::class, 'list'])->name('list')->middleware('auth:api');
 });

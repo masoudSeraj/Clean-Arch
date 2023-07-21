@@ -1,8 +1,7 @@
 <?php namespace App\Contracts;
 
-use App\Services\FileContentService;
-
 interface FileBuilderInterface
 {
+    public function __construct(FileContentInterface $fileContentInterface);
     public function create($fileContent);
 }

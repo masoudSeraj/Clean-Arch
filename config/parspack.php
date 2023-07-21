@@ -1,4 +1,5 @@
 <?php 
 return [
-    'filename'  => 'products.txt'
+    'filename'  => 'products.txt',
+    'throttle'  => 100
 ];

@@ -2,17 +2,19 @@
 
 use Illuminate\Support\Facades\Storage;
       use App\Contracts\FileBuilderInterface;
+use App\Contracts\FileContentInterface;
 
 class FileBuilderLinuxService implements FileBuilderInterface
 {
-    protected $disk = 'public';
-    protected $filename = 'products.txt';
-
+ 
+    public function __construct(public FileContentInterface $fileContentInterface)
+    {
+    }
 
     public function create($content)
     {
-        if(!Storage::disk($this->disk)->exists($this->filename())){
-            Storage::disk($this->disk)->put($this->filename(), $content);
+        if(!Storage::disk($this->fileContentInterface->getdisk())->exists($this->filename())){
+            Storage::disk($this->fileContentInterface->getdisk())->put($this->filename(), $content);
             return;
         }
         return $this->update();
@@ -20,29 +22,18 @@ class FileBuilderLinuxService implements FileBuilderInterface
 
     public function update()
     {
-        if(!Storage::disk($this->disk)->exists($this->filename())){
+        if(!Storage::disk($this->fileContentInterface->getdisk())->exists($this->filename())){
             return;
         }
     }
 
     public function getFile()
     {
-        return Storage::disk($this->disk)->get($this->filename());
-    }
-
-    public function setDisk($disk)
-    {
-        $this->disk = $disk;
-        return $this;
-    }
-
-    public function getDisk()
-    {
-        return $this->disk;
+        return Storage::disk($this->fileContentInterface->getdisk())->get($this->filename());
     }
 
     protected function filename()
     {
-        return config('parspack.filename') ?? $this->filename;
+        return $this->fileContentInterface->getFilename() ?? config('parspack.filename');
     }
 }

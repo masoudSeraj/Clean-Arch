@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\CommentRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProductRequest extends FormRequest
@@ -22,7 +23,7 @@ class ProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'comment'  => 'required'
+            'comment'  => ['required', new CommentRule]
         ];
     }
 }

@@ -1,22 +1,20 @@
 <?php namespace App\Repositories;
 
-use Exception;
-use Throwable;
 use App\Models\User;
 use App\Models\Comment;
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Model;
 use App\Contracts\CommentRepositoryInterface;
 
 class CommentRepository implements CommentRepositoryInterface
 {    
-   public function store(Product $product, User $user=null, array $data)
+   public function store(Model $model, User $user=null, $comment)
    {
       Comment::create([
-         'comment' => $data['comment'], 
+         'comment' => $comment, 
          'user_id' => $user->id, 
-         'commentable_id' => $product->id, 
-         'commentable_type' => $product
+         'commentable_id' => $model->id, 
+         'commentable_type' => get_class($model)
      ]);
    }
-
 }
