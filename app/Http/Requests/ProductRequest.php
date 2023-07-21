@@ -23,7 +23,7 @@ class ProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'comment'  => ['required', new CommentRule]
+            'comment' => ['required', new CommentRule],
         ];
     }
 }

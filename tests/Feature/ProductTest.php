@@ -2,21 +2,22 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
+use App\Contracts\FileContentInterface;
 use App\Models\Comment;
 use App\Models\Product;
+use App\Models\User;
 use App\Services\FileBuilderDirector;
-use Illuminate\Support\Facades\Event;
-use App\Contracts\FileContentInterface;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\Fluent\AssertableJson;
+use Tests\TestCase;
 
 class ProductTest extends TestCase
 {
     use RefreshDatabase;
+
     /**
      * A basic feature test example.
      */
@@ -24,7 +25,7 @@ class ProductTest extends TestCase
     {
         $user = User::factory()->create();
         $products = Product::factory()->count(3)->create();
-        
+
         $data = ['comment' => 'comment added'];
 
         $response = $this->actingAs($user)->postJson(route('comment', ['product' => $products->first()->name, 'user' => $user->id]), $data);
@@ -32,7 +33,7 @@ class ProductTest extends TestCase
         $response->assertOk();
         $this->assertDatabaseHas('comments', [
             'user_id' => $user->id,
-            'comment' => $data['comment']
+            'comment' => $data['comment'],
         ]);
     }
 
@@ -61,7 +62,7 @@ class ProductTest extends TestCase
 
         $product = Product::factory()->create();
         $filecontent = app(FileContentInterface::class);
-        
+
         $filecontent->setContent($product->name);
         $filecontent->setFilename('test.txt');
 
@@ -78,11 +79,11 @@ class ProductTest extends TestCase
     {
         Event::fake();
 
-        $product = Product::factory()->create();  
+        $product = Product::factory()->create();
         $filecontent = app(FileContentInterface::class);
         $filecontent->setContent($product->name);
         $filecontent->setFilename('test.txt');
-        
+
         app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
 
         $contents = file_get_contents(Storage::disk('public')->path('test.txt'));
@@ -92,15 +93,17 @@ class ProductTest extends TestCase
         Storage::assertMissing('test.txt');
     }
 
-    public function test_add_new_product_string_command_will_add_product_to_database(){
+    public function test_add_new_product_string_command_will_add_product_to_database()
+    {
         Artisan::call('new:product', [
-            '--name'    =>  'test',
+            '--name' => 'test',
         ]);
 
         $this->assertDatabaseHas('products', ['name' => 'test']);
     }
 
-    public function test_product_list_is_displayed_for_user(){
+    public function test_product_list_is_displayed_for_user()
+    {
         $userFactory = User::factory()->state(['name' => 'masoud']);
         $user = $userFactory->create();
 
@@ -109,20 +112,19 @@ class ProductTest extends TestCase
                 $user
             )
         )->create();
-       
+
         $response = $this->actingAs($user)->postJson(route('list'));
         $response->assertOk();
-        $response->assertJson(fn(AssertableJson $json) => $json
+        $response->assertJson(fn (AssertableJson $json) => $json
             ->has('data')
             ->has('data.0', 3)
             ->where('data.0.product_name', $product->name)
             ->has('data.0.comments', 2)
             ->where('data.0.id', $product->id)
-            ->has('data.0.comments', 2, fn(AssertableJson $json) => 
-                $json->where('comment', $product->comments->first()->comment)
-                    ->where('user.id', $user->id)
+            ->has('data.0.comments', 2, fn (AssertableJson $json) => $json->where('comment', $product->comments->first()->comment)
+                ->where('user.id', $user->id)
                 ->etc()
-                )
+            )
             ->etc()
         );
     }

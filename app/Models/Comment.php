@@ -13,12 +13,12 @@ class Comment extends Model
 
     protected $guarded = [];
 
-    public function commentable() :MorphTo
+    public function commentable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function user() :BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
-use App\Http\Resources\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CommentResource extends JsonResource
@@ -17,9 +16,9 @@ class CommentResource extends JsonResource
     {
         // dd($this->comment);
         return [
-            'id'    =>  $this->id,
-            'comment'  => $this->comment,
-            'user'  => new UserResource($this->whenLoaded('user'))
+            'id' => $this->id,
+            'comment' => $this->comment,
+            'user' => new UserResource($this->whenLoaded('user')),
         ];
     }
 }

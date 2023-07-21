@@ -1,10 +1,10 @@
-<?php namespace App\Contracts;
+<?php
 
-use App\Services\FileContentService;
+namespace App\Contracts;
 
 /**
  * FileContentInterface
- * 
+ *
  * This could be a class too!
  */
 interface FileContentInterface
@@ -18,7 +18,7 @@ interface FileContentInterface
     public function setDisk($disk);
 
     public function getDisk();
-    
+
     public function setFilename($filename);
 
     public function getFilename();

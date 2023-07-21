@@ -2,16 +2,14 @@
 
 namespace App\Services;
 
-use Exception;
-
-use App\Models\Product;
-use App\Exceptions\QueryException;
-use App\Contracts\FileBuilderInterface;
-use Illuminate\Support\Facades\Validator;
-use App\Contracts\ProductServiceInterface;
 use App\Contracts\CommentRepositoryInterface;
+use App\Contracts\FileBuilderInterface;
+use App\Contracts\ProductServiceInterface;
+use App\Exceptions\QueryException;
 use App\Http\Resources\ProductResource;
-use App\Models\Comment;
+use App\Models\Product;
+use Exception;
+use Illuminate\Support\Facades\Validator;
 
 class ProductService implements ProductServiceInterface
 {
@@ -21,7 +19,7 @@ class ProductService implements ProductServiceInterface
     ) {
     }
 
-    public function comment(Product $product, $user = null, $data)
+    public function comment(Product $product, $user, $data)
     {
         try {
             $this->commentRepositoryInterface->store($product, $user, $data['comment']);
@@ -29,25 +27,24 @@ class ProductService implements ProductServiceInterface
             throw new QueryException('Something went wrong');
         }
     }
-    
+
     /**
      * Method store
      *
-     * @param array $name [explicite description]
-     *
+     * @param  array  $name [explicite description]
      * @return void
      */
     public function storeCommand(array $name)
     {
         $validator = Validator::make($name, [
-            'name'  => 'required|unique:products,name',
+            'name' => 'required|unique:products,name',
         ], [
-            'name.required'  => 'Product name is required',
-            'name.unique'   => 'Product name must be unique'
+            'name.required' => 'Product name is required',
+            'name.unique' => 'Product name must be unique',
         ]);
-        
+
         $validator->validate();
-        collect($name['name'])->each(fn($product) => Product::create(['name' => $product]));
+        collect($name['name'])->each(fn ($product) => Product::create(['name' => $product]));
     }
 
     public function list()

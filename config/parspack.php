@@ -1,5 +1,6 @@
-<?php 
+<?php
+
 return [
-    'filename'  => 'products.txt',
-    'throttle'  => 100
+    'filename' => 'products.txt',
+    'throttle' => 100,
 ];

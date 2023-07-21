@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,11 +19,12 @@ class CommentFactory extends Factory
     public function definition(): array
     {
         $commentable = $this->commentable();
+
         return [
             'commentable_id' => $commentable::factory(),
             'commentable_type' => $commentable,
-            'user_id'   => User::factory(),
-            'comment'   => fake()->paragraph()
+            'user_id' => User::factory(),
+            'comment' => fake()->paragraph(),
         ];
     }
 

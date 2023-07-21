@@ -2,15 +2,14 @@
 
 namespace Tests\Feature;
 
-use PHPUnit\Framework\TestStatus\Success;
-use Tests\TestCase;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
+
     /**
      * A basic feature test example.
      */

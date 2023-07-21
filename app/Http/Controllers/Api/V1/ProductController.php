@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\User;
-use App\Models\Comment;
-use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Contracts\ProductServiceInterface;
 use App\Exceptions\QueryException;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
 use App\Http\Requests\ProductRequest;
-use App\Contracts\ProductServiceInterface;
+use App\Models\Product;
+use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
@@ -19,15 +16,16 @@ class ProductController extends Controller
     {
 
     }
-    public function comment(Product $product, User $user=null, ProductRequest $request)
+
+    public function comment(Product $product, User $user = null, ProductRequest $request)
     {
-        if(!isset($user->id)){
+        if (! isset($user->id)) {
             $user = auth()->user();
         }
-        
-        try{
+
+        try {
             $this->productServiceInterface->comment($product, $user, $request);
-        } catch(QueryException $e){
+        } catch (QueryException $e) {
             return response()->json(['fail' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

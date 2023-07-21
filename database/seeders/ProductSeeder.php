@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Comment;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
@@ -21,14 +21,14 @@ class ProductSeeder extends Seeder
             ['name' => 'A'],
             ['name' => 'B'],
         )
-        ->has(Comment::factory()->count(2)->for(
+            ->has(Comment::factory()->count(2)->for(
                 $user
-        ))
-        ->create();
+            ))
+            ->create();
 
         $userFactory = User::factory()->state(['name' => 'masoud']);
         $user = $userFactory->create();
-        
+
         Product::factory()->state(['name' => 'C'])->has(
             Comment::factory()->count(2)->for(
                 $user

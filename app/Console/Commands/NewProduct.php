@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Product;
-use Illuminate\Console\Command;
 use App\Contracts\ProductServiceInterface;
+use Illuminate\Console\Command;
 use Illuminate\Validation\ValidationException;
 
 class NewProduct extends Command
@@ -28,14 +27,14 @@ class NewProduct extends Command
      */
     public function handle(ProductServiceInterface $service)
     {
-        try{
+        try {
             $service->storeCommand(['name' => $this->option('name')]);
             $this->info('Product added successfully');
-        } catch(ValidationException $e) {
+        } catch (ValidationException $e) {
             $this->error($e->getMessage());
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->error($e->getMessage());
         }
-        
+
     }
 }

@@ -1,4 +1,6 @@
-<?php namespace App\Services;
+<?php
+
+namespace App\Services;
 
 use App\Contracts\FileContentInterface;
 
@@ -9,9 +11,11 @@ use App\Contracts\FileContentInterface;
 class FileContentService implements FileContentInterface
 {
     protected $content;
-    protected $count = '1';    
+
+    protected $count = '1';
 
     protected $disk = 'public';
+
     protected $filename;
 
     public function __construct()
@@ -21,13 +25,11 @@ class FileContentService implements FileContentInterface
 
     /**
      * Method simpleContent
-     *
-     * @return string
      */
-    public function simpleContent() :string
+    public function simpleContent(): string
     {
-        return $this->content .': '. $this->count;
-    
+        return $this->content.': '.$this->count;
+
     }
 
     public function setContent($content)

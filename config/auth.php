@@ -44,7 +44,7 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
-        ], 
+        ],
     ],
 
     /*
