@@ -2,22 +2,23 @@
 
 namespace App\Providers;
 
-use App\Contracts\AuthenticationServiceInterface;
-use App\Contracts\CommentRepositoryInterface;
+use App\Models\Comment;
+use App\Models\Product;
+use Illuminate\Http\Request;
+use App\Services\ProductService;
+use App\Services\FileContentService;
+use App\Services\FileBuilderDirector;
 use App\Contracts\FileBuilderInterface;
 use App\Contracts\FileContentInterface;
-use App\Contracts\ProductServiceInterface;
-use App\Models\Product;
 use App\Repositories\CommentRepository;
 use App\Services\AuthenticationService;
-use App\Services\FileBuilderDirector;
-use App\Services\FileBuilderLinuxService;
-use App\Services\FileContentService;
-use App\Services\ProductService;
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Cache\RateLimiting\Limit;
+use App\Services\FileBuilderLinuxService;
+use App\Contracts\ProductServiceInterface;
+use Illuminate\Support\Facades\RateLimiter;
+use App\Contracts\CommentRepositoryInterface;
+use App\Contracts\AuthenticationServiceInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -52,6 +53,16 @@ class AppServiceProvider extends ServiceProvider
             app(FileBuilderDirector::class)->createFileLogger(
                 $filecontent->simpleContent()
             );
+        });
+
+        Comment::created(function ($comment){
+            $filecontent = app(FileContentInterface::class);
+            $filecontent->setContent($comment->commentable->name);
+            $filecontent->setFilename('products.txt');
+            $filecontent->setCount($comment->commentable->count());
+            $filecontent->simpleContent();
+
+            app(FileBuilderDirector::class)->updateFileLogger();
         });
 
         RateLimiter::for('throttler', function (Request $request) {

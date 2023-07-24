@@ -16,4 +16,9 @@ class FileBuilderDirector
     {
         $this->fileBuilderInterface->create($fileContent);
     }
+
+    public function updateFileLogger()
+    {
+        $this->fileBuilderInterface->update();
+    }
 }

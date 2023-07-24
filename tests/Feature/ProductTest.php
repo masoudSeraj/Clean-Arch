@@ -75,7 +75,7 @@ class ProductTest extends TestCase
         Storage::assertMissing('test.txt');
     }
 
-    public function test_product_name_will_exist_in_log_file()
+    public function test_product_name_will_exist_in_log_file_when_a_product_is_created()
     {
         Event::fake();
 
@@ -93,7 +93,43 @@ class ProductTest extends TestCase
         Storage::assertMissing('test.txt');
     }
 
-    public function test_add_new_product_string_command_will_add_product_to_database()
+    public function test_comment_count_will_increase_in_file_new_comment_on_product_is_added()
+    {
+        Event::fake();
+        $filecontent = app(FileContentInterface::class);
+
+        $product = Product::factory()->state(['name' => 'product1'])->create();
+        $filecontent->setContent($product->name);
+
+        app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
+
+        $product2 =  Product::factory()->state(['name' => 'product2'])->create();
+        $filecontent->setContent($product2->name);
+
+        app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
+
+        $product3 =  Product::factory()->state(['name' => 'product3'])->create();
+        $filecontent->setContent($product3->name);
+        app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
+
+        // $filecontent->setFilename('test.txt');
+        // app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
+        // $product = $product->has(
+        //     Comment::factory()->count(2)->for(
+        //         User::factory()->state([
+        //             'name' => 'masoud',
+        //         ])
+        //     ))->create();
+        // $product2 = Product::factory()->state(['name' => 'product2'])->create();
+
+        // $filecontent->setContent($product->name);
+        // // $filecontent->setContent($product2->name);
+        // $filecontent->setFilename('test.txt');
+        // app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
+
+    }
+
+    public function test_add_new_product_command_will_add_product_to_database()
     {
         Artisan::call('new:product', [
             '--name' => 'test',

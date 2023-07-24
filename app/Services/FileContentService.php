@@ -18,6 +18,8 @@ class FileContentService implements FileContentInterface
 
     protected $filename;
 
+    protected $productWithCount;
+
     public function __construct()
     {
 
@@ -28,8 +30,12 @@ class FileContentService implements FileContentInterface
      */
     public function simpleContent(): string
     {
-        return $this->content.': '.$this->count;
+        return $this->productWithCount = $this->content.': '.$this->count;
+    }
 
+    public function getProductWithCount(): string
+    {
+        return $this->productWithCount;
     }
 
     public function setContent($content)

@@ -22,4 +22,6 @@ interface FileContentInterface
     public function setFilename($filename);
 
     public function getFilename();
+
+    public function getProductWithCount();
 }
