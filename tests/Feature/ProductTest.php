@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Contracts\FileContentInterface;
+use App\Facades\Storage;
 use App\Models\Comment;
 use App\Models\Product;
 use App\Models\User;
@@ -10,7 +11,6 @@ use App\Services\FileBuilderDirector;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
@@ -70,9 +70,9 @@ class ProductTest extends TestCase
             $filecontent->simpleContent()
         );
 
-        Storage::disk('public')->assertExists('test.txt');
-        Storage::disk('public')->delete('test.txt');
-        Storage::assertMissing('test.txt');
+        $this->assertTrue(Storage::exists('test.txt'));
+        Storage::delete('test.txt');
+        $this->assertTrue(Storage::missing('test.txt'));
     }
 
     public function test_product_name_will_exist_in_log_file_when_a_product_is_created()
@@ -86,47 +86,70 @@ class ProductTest extends TestCase
 
         app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
 
-        $contents = file_get_contents(Storage::disk('public')->path('test.txt'));
-
+        $contents = file_get_contents(Storage::getFile('test.txt'));
+        // dd($contents);
         $this->assertStringContainsString($product->name, $contents);
-        Storage::disk('public')->delete('test.txt');
-        Storage::assertMissing('test.txt');
+        // Storage::disk('public')->delete('test.txt');
+        // Storage::assertMissing('test.txt');
     }
 
-    public function test_comment_count_will_increase_in_file_new_comment_on_product_is_added()
+    public function test_products_will_append_when_new_product_is_added()
     {
         Event::fake();
         $filecontent = app(FileContentInterface::class);
 
         $product = Product::factory()->state(['name' => 'product1'])->create();
         $filecontent->setContent($product->name);
+        $filecontent->setFilename('test.txt');
 
         app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
 
-        $product2 =  Product::factory()->state(['name' => 'product2'])->create();
+        $product2 = Product::factory()->state(['name' => 'product2'])->create();
         $filecontent->setContent($product2->name);
+        $filecontent->setFilename('test.txt');
 
         app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
 
-        $product3 =  Product::factory()->state(['name' => 'product3'])->create();
+        $product3 = Product::factory()->state(['name' => 'product3'])->create();
         $filecontent->setContent($product3->name);
+        $filecontent->setFilename('test.txt');
         app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
 
-        // $filecontent->setFilename('test.txt');
-        // app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
-        // $product = $product->has(
-        //     Comment::factory()->count(2)->for(
-        //         User::factory()->state([
-        //             'name' => 'masoud',
-        //         ])
-        //     ))->create();
-        // $product2 = Product::factory()->state(['name' => 'product2'])->create();
+        $this->assertStringContainsString($product->name, file_get_contents(Storage::getFile('test.txt')));
+        $this->assertStringContainsString($product2->name, file_get_contents(Storage::getFile('test.txt')));
+        $this->assertStringContainsString($product3->name, file_get_contents(Storage::getFile('test.txt')));
 
-        // $filecontent->setContent($product->name);
-        // // $filecontent->setContent($product2->name);
-        // $filecontent->setFilename('test.txt');
-        // app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
+        // app(StorageInterface::class)->delete('test.txt');
+        // $this->assertTrue(app(StorageInterface::class)->missing('test.txt'));
+    }
 
+    public function test_comment_count_will_increase_when_comment_is_added()
+    {
+        Event::fake();
+        $filecontent = app(FileContentInterface::class);
+
+        $product2 = Product::factory()->state(['name' => 'product2'])->create();
+        $filecontent->setContent($product2->name);
+        $filecontent->setFilename('test.txt');
+        app(FileBuilderDirector::class)->createFileLogger($filecontent->simpleContent());
+
+        // dd(file_get_contents(Storage::getFile('test.txt')));
+        $filecontent = app(FileContentInterface::class);
+        $user = User::factory()->state(['name' => 'masoud'])->create();
+        $product1 = Product::factory()->state(['name' => 'product1']);
+        $comment = Comment::factory()->count(2)
+            // ->for($user)
+            ->for($product1, 'commentable')->create();
+
+        // dd($comment->first()->commentable);
+        $filecontent->setContent($comment->first()->commentable->name);
+        $filecontent->setContent($comment[1]->commentable->name);
+        $filecontent->setFilename('test.txt');
+        $filecontent->setCount($comment->first()->commentable->count());
+        $filecontent->setCount($comment[1]->commentable->count());
+        $filecontent->simpleContent();
+
+        app(FileBuilderDirector::class)->updateFileLogger();
     }
 
     public function test_add_new_product_command_will_add_product_to_database()

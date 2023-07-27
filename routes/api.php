@@ -27,7 +27,7 @@ Route::group([
     'prefix' => 'auth',
 
 ], function ($router) {
-    Route::post('/', function($router){
+    Route::post('/', function ($router) {
         return 'yes';
     });
     Route::post('login', [AuthController::class, 'login'])->name('login');

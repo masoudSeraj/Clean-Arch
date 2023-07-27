@@ -2,23 +2,25 @@
 
 namespace App\Providers;
 
-use App\Models\Comment;
-use App\Models\Product;
-use Illuminate\Http\Request;
-use App\Services\ProductService;
-use App\Services\FileContentService;
-use App\Services\FileBuilderDirector;
+use App\Contracts\AuthenticationServiceInterface;
+use App\Contracts\CommentRepositoryInterface;
 use App\Contracts\FileBuilderInterface;
 use App\Contracts\FileContentInterface;
+use App\Contracts\ProductServiceInterface;
+use App\Contracts\StorageInterface;
+use App\Models\Comment;
+use App\Models\Product;
 use App\Repositories\CommentRepository;
 use App\Services\AuthenticationService;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Cache\RateLimiting\Limit;
+use App\Services\FileBuilderDirector;
 use App\Services\FileBuilderLinuxService;
-use App\Contracts\ProductServiceInterface;
+use App\Services\FileContentService;
+use App\Services\LinuxStorage;
+use App\Services\ProductService;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
-use App\Contracts\CommentRepositoryInterface;
-use App\Contracts\AuthenticationServiceInterface;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AuthenticationServiceInterface::class, AuthenticationService::class);
         $this->app->bind(ProductServiceInterface::class, ProductService::class);
         $this->app->bind(CommentRepositoryInterface::class, CommentRepository::class);
+        $this->app->bind(StorageInterface::class, LinuxStorage::class);
 
         $this->app->singleton(FileContentInterface::class, FileContentService::class);
 
@@ -38,6 +41,10 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->isLocal()) {
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
+
+        $this->app->bind('storage', function ($app) {
+            return app(StorageInterface::class);
+        });
     }
 
     /**
@@ -55,11 +62,11 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
-        Comment::created(function ($comment){
+        Comment::created(function ($comment) {
             $filecontent = app(FileContentInterface::class);
             $filecontent->setContent($comment->commentable->name);
             $filecontent->setFilename('products.txt');
-            $filecontent->setCount($comment->commentable->count());
+            $filecontent->setCount($comment->commentable->comments->count());
             $filecontent->simpleContent();
 
             app(FileBuilderDirector::class)->updateFileLogger();
